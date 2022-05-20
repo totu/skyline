@@ -18,4 +18,4 @@ Run skyline in a docker with following command:
 
 # Attributions
 
-SCAD & STL code ripped from [https://github.com/felixgomez/gitlab-skyline/](Félix Gómez's gitlab skyline)
+SCAD & STL code ripped from [Félix Gómez's gitlab skyline](https://github.com/felixgomez/gitlab-skyline/)
