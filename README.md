@@ -15,3 +15,7 @@ Copy `skyline.py` into whatever repo you want to make the skyline out of and run
 Run skyline in a docker with following command:
 
 `$ docker run -v <path-to-repo-you-want-to-skyline>:/workspace $(docker build -q .) <author> <year>`
+
+# Attributions
+
+SCAD & STL code ripped from [https://github.com/felixgomez/gitlab-skyline/](Félix Gómez's gitlab skyline)
