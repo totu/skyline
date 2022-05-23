@@ -17,16 +17,23 @@ from solid import *
 from solid.utils import *
 from tqdm.auto import tqdm
 
+
 def get_commits_per_day_for_year(year, author=None):
     author_string = f"--author={author}" if author else ""
     git_cmd = f"git log {author_string} --date=short --pretty=format:%ad"
-    proc = subprocess.run([x for x in git_cmd.split(" ") if x != ""], capture_output=True)
+    proc = subprocess.run(
+        [x for x in git_cmd.split(" ") if x != ""], capture_output=True
+    )
     assert proc.returncode == 0, "Something went wrong with git!"
 
     commit_dates = []
-    for date in tqdm(proc.stdout.decode("utf-8").split("\n"), desc="Parsing git history"):
+    for date in tqdm(
+        proc.stdout.decode("utf-8").split("\n"), desc="Parsing git history"
+    ):
         git_year, git_month, git_day = date.split("-")
-        commit_dates.append(datetime.datetime(int(git_year), int(git_month), int(git_day)))
+        commit_dates.append(
+            datetime.datetime(int(git_year), int(git_month), int(git_day))
+        )
 
     dates = []
     for month in tqdm(range(1, 13), desc="Creating calendar"):
@@ -35,10 +42,10 @@ def get_commits_per_day_for_year(year, author=None):
             if date.isoweekday() not in [6, 7]:
                 dates.append(date)
 
-
     commits_per_day = [commit_dates.count(x) for x in dates]
 
     return commits_per_day
+
 
 def generate_skyline(year, author, name, repo=None):
     year_contribution_list = get_commits_per_day_for_year(year, author)
@@ -50,7 +57,7 @@ def generate_skyline(year, author, name, repo=None):
     max_length_contributionbar = 20
     bar_base_dimension = 2.5
     base_length = (len(year_contribution_list) + 1) * bar_base_dimension / 5 + 17.5
-    base_top_offset = ((base_width - base_top_width) / 2)
+    base_top_offset = (base_width - base_top_width) / 2
     face_angle = math.degrees(math.atan(base_height / base_top_offset))
 
     base_points = [
@@ -61,7 +68,7 @@ def generate_skyline(year, author, name, repo=None):
         [base_top_offset, base_top_offset, base_height],
         [base_length - base_top_offset, base_top_offset, base_height],
         [base_length - base_top_offset, base_width - base_top_offset, base_height],
-        [base_top_offset, base_width - base_top_offset, base_height]
+        [base_top_offset, base_width - base_top_offset, base_height],
     ]
 
     base_faces = [
@@ -70,36 +77,38 @@ def generate_skyline(year, author, name, repo=None):
         [7, 6, 5, 4],  # top
         [5, 6, 2, 1],  # right
         [6, 7, 3, 2],  # back
-        [7, 4, 0, 3]  # left
+        [7, 4, 0, 3],  # left
     ]
 
     base_scad = polyhedron(points=base_points, faces=base_faces)
 
     year_scad = rotate([face_angle, 0, 0])(
-        translate([base_length - base_length / 5 + 3.5, base_height / 2 - base_top_offset / 2 - 1, -1.5])(
-            linear_extrude(height=3)(
-                text(str(year), 6)
-            )
-        )
+        translate(
+            [
+                base_length - base_length / 5 + 3.5,
+                base_height / 2 - base_top_offset / 2 - 1,
+                -1.5,
+            ]
+        )(linear_extrude(height=3)(text(str(year), 6)))
     )
 
     author = ""
     nick = name if name else author
     user_scad = rotate([face_angle, 0, 0])(
         translate([6, base_height / 2 - base_top_offset / 2, -1.5])(
-            linear_extrude(height=3)(
-                text(nick, 6)
-            )
+            linear_extrude(height=3)(text(nick, 6))
         )
     )
 
     repo_name = repo if repo else ""
     repo_scad = rotate([face_angle, 0, 0])(
-        translate([(base_length - base_length / 2) - len(repo_name)*2.5, base_height / 2 - base_top_offset / 2 - 1, -1.5])(
-            linear_extrude(height=3)(
-                text(repo_name, 6)
-            )
-        )
+        translate(
+            [
+                (base_length - base_length / 2) - len(repo_name) * 2.5,
+                base_height / 2 - base_top_offset / 2 - 1,
+                -1.5,
+            ]
+        )(linear_extrude(height=3)(text(repo_name, 6)))
     )
 
     bars = None
@@ -113,10 +122,21 @@ def generate_skyline(year, author, name, repo=None):
             continue
 
         bar = translate(
-            [base_top_offset + 2.5 + (week_number - 2) * bar_base_dimension,
-             base_top_offset + 2.5 + day_number * bar_base_dimension, base_height])(
-                cube([bar_base_dimension, bar_base_dimension,
-                year_contribution_list[i] * max_length_contributionbar / max_contributions_by_day])
+            [
+                base_top_offset + 2.5 + (week_number - 2) * bar_base_dimension,
+                base_top_offset + 2.5 + day_number * bar_base_dimension,
+                base_height,
+            ]
+        )(
+            cube(
+                [
+                    bar_base_dimension,
+                    bar_base_dimension,
+                    year_contribution_list[i]
+                    * max_length_contributionbar
+                    / max_contributions_by_day,
+                ]
+            )
         )
 
         if bars is None:
@@ -155,6 +175,7 @@ def parse_args():
     args = parser.parse_args()
 
     return args
+
 
 if __name__ == "__main__":
     args = parse_args()
