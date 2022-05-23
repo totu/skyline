@@ -29,8 +29,11 @@ def get_commits_per_day_for_year(author, year):
     dates = []
     for month in range(1, 13):
         for day in range(1, calendar.monthrange(int(year), month)[1] + 1):
-            dates.append(datetime.datetime(int(year), month, day))
-                
+            date = datetime.datetime(int(year), month, day)
+            if date.isoweekday() not in [6, 7]:
+                dates.append(date)
+
+
     commits_per_day = [commit_dates.count(x) for x in dates]
 
     return commits_per_day
@@ -39,13 +42,13 @@ def generate_skyline(author, year, name, repo=None):
     year_contribution_list = get_commits_per_day_for_year(author, year)
     max_contributions_by_day = max(year_contribution_list)
 
-    base_top_width = 23
-    base_width = 30
-    base_length = 150
+    base_top_width = 17
+    base_width = 25
+    base_length = (len(year_contribution_list) * 2.5) / 5 + 7.5
     base_height = 10
     max_length_contributionbar = 20
     bar_base_dimension = 2.5
-    base_top_offset = (base_width - base_top_width) / 2
+    base_top_offset = ((base_width - base_top_width) / 2)
     face_angle = math.degrees(math.atan(base_height / base_top_offset))
 
     base_points = [
@@ -71,7 +74,7 @@ def generate_skyline(author, year, name, repo=None):
     base_scad = polyhedron(points=base_points, faces=base_faces)
 
     year_scad = rotate([face_angle, 0, 0])(
-        translate([base_length - base_length / 5, base_height / 2 - base_top_offset / 2 - 1, -1.5])(
+        translate([base_length - base_length / 5 + 3.5, base_height / 2 - base_top_offset / 2 - 1, -1.5])(
             linear_extrude(height=3)(
                 text(str(year), 6)
             )
@@ -80,7 +83,7 @@ def generate_skyline(author, year, name, repo=None):
 
     nick = name if name else author
     user_scad = rotate([face_angle, 0, 0])(
-        translate([9, base_height / 2 - base_top_offset / 2, -1.5])(
+        translate([6, base_height / 2 - base_top_offset / 2, -1.5])(
             linear_extrude(height=3)(
                 text(nick, 6)
             )
@@ -101,14 +104,14 @@ def generate_skyline(author, year, name, repo=None):
     week_number = 1
     from tqdm.auto import tqdm
     for i in tqdm(range(len(year_contribution_list))):
-        day_number = i % 7
+        day_number = i % 5
         if day_number == 0:
             week_number += 1
         if year_contribution_list[i] == 0:
             continue
 
         bar = translate(
-            [base_top_offset + 2.5 + (week_number - 1) * bar_base_dimension,
+            [base_top_offset + 2.5 + (week_number - 3) * bar_base_dimension,
              base_top_offset + 2.5 + day_number * bar_base_dimension, base_height])(
                 cube([bar_base_dimension, bar_base_dimension,
                 year_contribution_list[i] * max_length_contributionbar / max_contributions_by_day])
