@@ -124,7 +124,8 @@ def generate_skyline(year, author, name, repo=None):
         else:
             bars += bar
 
-    scad_contributions_filename = f"git_{author}_{year}"
+    author = f"{author}_" if author else ""
+    scad_contributions_filename = f"git_{author}{year}"
     scad_skyline_object = base_scad + user_scad + repo_scad + year_scad
 
     if bars is not None:
