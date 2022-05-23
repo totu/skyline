@@ -31,9 +31,15 @@ def get_commits_per_day_for_year(year, author=None):
         proc.stdout.decode("utf-8").split("\n"), desc="Parsing git history"
     ):
         git_year, git_month, git_day = date.split("-")
-        commit_dates.append(
-            datetime.datetime(int(git_year), int(git_month), int(git_day))
-        )
+        date = datetime.datetime(int(git_year), int(git_month), int(git_day))
+        match date.isoweekday():
+            case 6:
+                date =- datetime.timedelta(days=1)
+            # Add Sunday commits to Monday
+            case 7:
+                date =+ datetime.timedelta(days=1)
+            # Week days are treated normally
+        commit_dates.append(date)
 
     dates = []
     for month in tqdm(range(1, 13), desc="Creating calendar"):
