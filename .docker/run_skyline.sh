@@ -1,3 +1,3 @@
 #!/bin/sh
 cd /workspace
-python3 /skyline.py $1 $2
+python3 /skyline.py $@

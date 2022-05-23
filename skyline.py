@@ -16,9 +16,10 @@ import math
 from solid import *
 from solid.utils import *
 
-def get_commits_per_day_for_year(author, year):
-    git_cmd = f"git log --author={author} --date=short --pretty=format:%ad"
-    proc = subprocess.run(git_cmd.split(" "), capture_output=True)
+def get_commits_per_day_for_year(year, author=None):
+    author_string = f"--author={author}" if author else ""
+    git_cmd = f"git log {author_string} --date=short --pretty=format:%ad"
+    proc = subprocess.run([x for x in git_cmd.split(" ") if x != ""], capture_output=True)
     assert proc.returncode == 0, "Something went wrong with git!"
 
     commit_dates = []
@@ -38,8 +39,8 @@ def get_commits_per_day_for_year(author, year):
 
     return commits_per_day
 
-def generate_skyline(author, year, name, repo=None):
-    year_contribution_list = get_commits_per_day_for_year(author, year)
+def generate_skyline(year, author, name, repo=None):
+    year_contribution_list = get_commits_per_day_for_year(year, author)
     max_contributions_by_day = max(year_contribution_list)
 
     base_top_width = 17
@@ -81,6 +82,7 @@ def generate_skyline(author, year, name, repo=None):
         )
     )
 
+    author = ""
     nick = name if name else author
     user_scad = rotate([face_angle, 0, 0])(
         translate([6, base_height / 2 - base_top_offset / 2, -1.5])(
@@ -134,17 +136,20 @@ def generate_skyline(author, year, name, repo=None):
     print("SCAD generated converting to STL")
 
     stl_file = f"{scad_contributions_filename}.stl"
-    subprocess.run(["openscad", "-o", stl_file, scad_file], capture_output=True)
-    os.remove(scad_file)
+    try:
+        subprocess.run(["openscad", "-o", stl_file, scad_file], capture_output=True)
+        os.remove(scad_file)
+    except FileNotFoundError as err:
+        os.remove(scad_file)
+        raise err
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Create git skyline of current repo")
-    parser.add_argument("author", help="Who are we making skyline for?")
     parser.add_argument("year", help="Which year are we interested int?")
+    parser.add_argument("--author", help="Who are we making skyline for?")
     parser.add_argument("--name", help="Nick name instead of author name?")
     parser.add_argument("--repo", help="Name of the repository?")
-
 
     args = parser.parse_args()
 
@@ -152,4 +157,4 @@ def parse_args():
 
 if __name__ == "__main__":
     args = parse_args()
-    generate_skyline(args.author, args.year, args.name, args.repo)
+    generate_skyline(args.year, args.author, args.name, args.repo)
