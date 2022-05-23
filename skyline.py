@@ -134,7 +134,7 @@ def generate_skyline(author, year, name, repo=None):
     print("SCAD generated converting to STL")
 
     stl_file = f"{scad_contributions_filename}.stl"
-    subprocess.run(['openscad', '-o', stl_file, scad_file], capture_output=True)
+    subprocess.run(["openscad", "-o", stl_file, scad_file], capture_output=True)
     os.remove(scad_file)
 
 
