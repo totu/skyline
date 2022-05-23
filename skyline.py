@@ -17,7 +17,7 @@ from solid import *
 from solid.utils import *
 
 def get_commits_per_day_for_year(author, year):
-    git_cmd = "git log --date=short --pretty=format:%ad"
+    git_cmd = f"git log --author={author} --date=short --pretty=format:%ad"
     proc = subprocess.run(git_cmd.split(" "), capture_output=True)
     assert proc.returncode == 0, "Something went wrong with git!"
 
@@ -35,7 +35,7 @@ def get_commits_per_day_for_year(author, year):
 
     return commits_per_day
 
-def generate_skyline(author, year):
+def generate_skyline(author, year, name, repo=None):
     year_contribution_list = get_commits_per_day_for_year(author, year)
     max_contributions_by_day = max(year_contribution_list)
 
@@ -78,10 +78,20 @@ def generate_skyline(author, year):
         )
     )
 
+    nick = name if name else author
     user_scad = rotate([face_angle, 0, 0])(
         translate([9, base_height / 2 - base_top_offset / 2, -1.5])(
             linear_extrude(height=3)(
-                text(author, 6)
+                text(nick, 6)
+            )
+        )
+    )
+
+    repo_name = repo if repo else ""
+    repo_scad = rotate([face_angle, 0, 0])(
+        translate([(base_length - base_length / 2) - len(repo_name)*2.5, base_height / 2 - base_top_offset / 2 - 1, -1.5])(
+            linear_extrude(height=3)(
+                text(repo_name, 6)
             )
         )
     )
@@ -110,7 +120,7 @@ def generate_skyline(author, year):
             bars += bar
 
     scad_contributions_filename = f"git_{author}_{year}"
-    scad_skyline_object = base_scad + user_scad + year_scad
+    scad_skyline_object = base_scad + user_scad + repo_scad + year_scad
 
     if bars is not None:
         scad_skyline_object += bars
@@ -129,6 +139,9 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Create git skyline of current repo")
     parser.add_argument("author", help="Who are we making skyline for?")
     parser.add_argument("year", help="Which year are we interested int?")
+    parser.add_argument("--name", help="Nick name instead of author name?")
+    parser.add_argument("--repo", help="Name of the repository?")
+
 
     args = parser.parse_args()
 
@@ -136,4 +149,4 @@ def parse_args():
 
 if __name__ == "__main__":
     args = parse_args()
-    generate_skyline(args.author, args.year)
+    generate_skyline(args.author, args.year, args.name, args.repo)
