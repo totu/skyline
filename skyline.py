@@ -15,6 +15,7 @@ import calendar
 import math
 from solid import *
 from solid.utils import *
+from tqdm.auto import tqdm
 
 def get_commits_per_day_for_year(year, author=None):
     author_string = f"--author={author}" if author else ""
@@ -23,12 +24,12 @@ def get_commits_per_day_for_year(year, author=None):
     assert proc.returncode == 0, "Something went wrong with git!"
 
     commit_dates = []
-    for date in proc.stdout.decode("utf-8").split("\n"):
+    for date in tqdm(proc.stdout.decode("utf-8").split("\n"), desc="Parsing git history"):
         git_year, git_month, git_day = date.split("-")
         commit_dates.append(datetime.datetime(int(git_year), int(git_month), int(git_day)))
 
     dates = []
-    for month in range(1, 13):
+    for month in tqdm(range(1, 13), desc="Creating calendar"):
         for day in range(1, calendar.monthrange(int(year), month)[1] + 1):
             date = datetime.datetime(int(year), month, day)
             if date.isoweekday() not in [6, 7]:
@@ -104,8 +105,7 @@ def generate_skyline(year, author, name, repo=None):
     bars = None
 
     week_number = 1
-    from tqdm.auto import tqdm
-    for i in tqdm(range(len(year_contribution_list))):
+    for i in tqdm(range(len(year_contribution_list)), desc="Generating SCAD skyline"):
         day_number = i % 5
         if day_number == 0:
             week_number += 1
