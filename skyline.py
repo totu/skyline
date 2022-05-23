@@ -45,11 +45,11 @@ def generate_skyline(year, author, name, repo=None):
     max_contributions_by_day = max(year_contribution_list)
 
     base_top_width = 17
-    base_width = 25
-    base_length = (len(year_contribution_list) * 2.5) / 5 + 7.5
+    base_width = 27.5
     base_height = 10
     max_length_contributionbar = 20
     bar_base_dimension = 2.5
+    base_length = (len(year_contribution_list) + 1) * bar_base_dimension / 5 + 17.5
     base_top_offset = ((base_width - base_top_width) / 2)
     face_angle = math.degrees(math.atan(base_height / base_top_offset))
 
@@ -113,7 +113,7 @@ def generate_skyline(year, author, name, repo=None):
             continue
 
         bar = translate(
-            [base_top_offset + 2.5 + (week_number - 3) * bar_base_dimension,
+            [base_top_offset + 2.5 + (week_number - 2) * bar_base_dimension,
              base_top_offset + 2.5 + day_number * bar_base_dimension, base_height])(
                 cube([bar_base_dimension, bar_base_dimension,
                 year_contribution_list[i] * max_length_contributionbar / max_contributions_by_day])
