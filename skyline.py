@@ -98,7 +98,6 @@ def generate_skyline(year, author, name, repo=None):
         )(linear_extrude(height=3)(text(str(year), 6)))
     )
 
-    author = ""
     nick = name if name else author
     user_scad = rotate([face_angle, 0, 0])(
         translate([6, base_height / 2 - base_top_offset / 2, -1.5])(
@@ -150,8 +149,8 @@ def generate_skyline(year, author, name, repo=None):
         else:
             bars += bar
 
-    author = f"{author}_" if author else ""
-    scad_contributions_filename = f"git_{author}{year}"
+    nick = f"{nick}_" if nick else ""
+    scad_contributions_filename = f"git_{nick}{year}"
     scad_skyline_object = base_scad + user_scad + repo_scad + year_scad
 
     if bars is not None:
