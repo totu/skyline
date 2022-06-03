@@ -6,6 +6,8 @@
 
 ## Option 1:
 
+**NOTE:** For this option you need to have python3.10 and OpenSCAD installed and avaiable from PATH as well as following python packages: tqdm, solidpython.
+
 Copy `skyline.py` into whatever repo you want to make the skyline out of and run it.
 
 ## Option 2:
