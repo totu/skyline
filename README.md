@@ -16,7 +16,7 @@ Run skyline in a docker with following command:
 
 `$ docker run -v <path-to-repo-you-want-to-skyline>:/workspace $(docker build -q .)`
 
-**NOTE!** on ARM based system (such as Apple M1) you will need to use `--platform linux/amd64` flag since alpine linux does not currently have OpenSCAD package for ARM.
+**NOTE!** on ARM based system (such as Apple M1) you will need to use `--platform linux/amd64` flag (when building) since alpine linux does not currently have OpenSCAD package for ARM.
 
 # Attributions
 
